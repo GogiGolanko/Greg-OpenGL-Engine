@@ -10,7 +10,48 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <string>
 using namespace std;
+
+#include "Utils.h"
+using namespace utils;
+
+static GLuint CompileShader(GLenum type, const string source) {
+	GLuint id = glCreateShader(type);
+	const char * src = source.c_str();
+	glShaderSource(id, 1, &src, nullptr);
+	glCompileShader(id);
+
+	GLint result;
+	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+	if (result == GL_FALSE) {
+		int lenght;
+		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &lenght);
+		char * message = new char[lenght];
+		glGetShaderInfoLog(id, lenght, &lenght, message);
+		cout << message << endl;
+		delete message;
+	}
+
+	return id;
+}
+
+
+static GLuint CreateShader(const string vertexShader, const string fragmentShader) {
+	GLuint program = glCreateProgram();
+	GLuint vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
+	GLuint fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
+
+	glAttachShader(program, vs);
+	glAttachShader(program, fs);
+	glLinkProgram(program);
+	glValidateProgram(program);
+
+	glDeleteShader(vs);
+	glDeleteShader(fs);
+
+	return program;
+}
 
 int main(void)
 {
@@ -59,10 +100,11 @@ int main(void)
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
 
-	glVertexAttribIPointer(0, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	GLuint shader = CreateShader(Utils::get_shader_source("vs0.glsl"), Utils::get_shader_source("fs0.glsl"));
+	glUseProgram(shader);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -79,6 +121,7 @@ int main(void)
         glfwPollEvents();
     }
 
+    glDeleteProgram(shader);
     glfwTerminate();
     return 0;
 }
