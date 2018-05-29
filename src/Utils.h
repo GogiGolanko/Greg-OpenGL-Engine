@@ -5,7 +5,7 @@
 #include <fstream>
 using namespace std;
 
-namespace glutils {
+namespace glUtils {
 	class Utils {
 	public:
 		static string get_file_string(string fileName) {

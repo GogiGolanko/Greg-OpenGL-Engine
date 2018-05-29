@@ -13,7 +13,10 @@
 using namespace std;
 
 #include "Utils.h"
-using namespace glutils;
+using namespace glUtils;
+
+#include "Debug.h"
+using namespace glDebug;
 
 static GLuint CompileShader(GLenum type, const string source) {
 	GLuint id = glCreateShader(type);
@@ -80,6 +83,8 @@ int main(void)
 
 	}
 
+	DebugOutput* debug = new DebugOutput();
+
 	cout << "Status: Using GLEW: " << glewGetString(GLEW_VERSION) << endl
 		 << "Version of GLFW: " << glfwGetVersionString() << endl
 		 << "Company: " << glGetString(GL_VENDOR) << endl
@@ -132,6 +137,7 @@ int main(void)
         glfwPollEvents();
     }
 
+    delete debug;
     glDeleteProgram(shader);
     glfwTerminate();
     return 0;
