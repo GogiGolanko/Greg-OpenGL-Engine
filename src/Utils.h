@@ -5,7 +5,7 @@
 #include <fstream>
 using namespace std;
 
-namespace utils {
+namespace glutils {
 	class Utils {
 	public:
 		static string get_file_string(string fileName) {
@@ -15,7 +15,7 @@ namespace utils {
 		}
 
 		static string get_shader_source(string shaderName) {
-			return get_file_string("res/shaders/" + shaderName);
+			return get_file_string("resources/shaders/" + shaderName);
 		}
 	};
 }

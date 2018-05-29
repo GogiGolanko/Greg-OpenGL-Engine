@@ -6,7 +6,6 @@
 // Description : OpenGL Engine
 //============================================================================
 #include <GL/glew.h>
-#include <GL/gl.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
@@ -14,7 +13,7 @@
 using namespace std;
 
 #include "Utils.h"
-using namespace utils;
+using namespace glutils;
 
 static GLuint CompileShader(GLenum type, const string source) {
 	GLuint id = glCreateShader(type);
@@ -30,7 +29,7 @@ static GLuint CompileShader(GLenum type, const string source) {
 		char * message = new char[lenght];
 		glGetShaderInfoLog(id, lenght, &lenght, message);
 		cout << message << endl;
-		delete message;
+		delete []message;
 	}
 
 	return id;
@@ -89,19 +88,31 @@ int main(void)
 		 << "Shading language: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 
 
-	float positions[6] {
+	float positions[] {
 		-0.5f, -0.5f,
-		 0.0f,  0.5f,
-		 0.5f, -0.5f
+		 0.5f, -0.5f,
+		 0.5f,  0.5f,
+		-0.5f,  0.5f
+	};
+
+	unsigned int indices[] {
+		0, 1, 2,
+		2, 3, 0
 	};
 
 	GLuint buffer;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(float), positions, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+
+
+	GLuint ibo;
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
 	GLuint shader = CreateShader(Utils::get_shader_source("vs0.glsl"), Utils::get_shader_source("fs0.glsl"));
 	glUseProgram(shader);
@@ -112,7 +123,7 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
